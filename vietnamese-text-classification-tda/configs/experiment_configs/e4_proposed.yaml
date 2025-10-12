@@ -1,0 +1,72 @@
+# ============================================
+# E4: PhoBERT + TDA + Data Augmentation (PROPOSED METHOD)
+# ============================================
+
+# Inherit from base config
+base_config: "../base_config.yaml"
+
+# Experiment metadata
+experiment:
+  name: "e4_proposed"
+  description: "Full model with PhoBERT + TDA + Data Augmentation"
+  expected_improvement: "+3-4% F1 over baseline"
+
+# Enable TDA
+model:
+  tda:
+    enabled: true
+    selected_layers: [8, 9, 10, 11]
+    homology_dims: [0, 1]
+    max_dimension: 1
+    persistence_image:
+      resolution: 20
+      sigma: 0.1
+      normalize: true
+    feature_dim: 3200  # 4 layers × 2 dims × 400
+  
+  fusion:
+    method: "concat"  # concat, attention, gated
+    hidden_dims: [1024, 512]
+    dropout: 0.3
+
+# Enable all augmentation techniques
+augmentation:
+  enabled: true
+  ratio: 0.3  # 30% augmentation
+  
+  techniques:
+    synonym_replacement:
+      enabled: true
+      weight: 0.4  # 40% of augmented data
+      replace_ratio: 0.1
+      tone_aware: true
+      preserve_compounds: true
+    
+    back_translation:
+      enabled: true
+      weight: 0.3  # 30% of augmented data
+      source_lang: "vi"
+      pivot_lang: "en"
+      quality_threshold: 0.7
+      max_bleu: 0.95
+    
+    contextual:
+      enabled: true
+      weight: 0.3  # 30% of augmented data
+      mask_ratio: 0.15
+      top_k: 5
+      model: "vinai/phobert-base"
+
+# Training configuration
+training:
+  num_epochs: 20
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+  warmup_steps: 500
+  
+  early_stopping:
+    enabled: true
+    patience: 3
+    min_delta: 0.001
+    monitor: "val_f1_macro"
+    mode: "max"
