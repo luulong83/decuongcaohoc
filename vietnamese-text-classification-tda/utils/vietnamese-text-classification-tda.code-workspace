@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "vietnamese-text-classification-tda",
+			"path": ".."
+		},
+		{
+			"name": "data",
+			"path": "../../../../Downloads/data/data"
+		}
+	],
+	"settings": {}
+}
